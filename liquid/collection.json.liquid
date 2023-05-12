@@ -1,0 +1,17 @@
+{% layout none %}
+{% paginate collection.products by 1000 %}
+{ "products": {
+{% for prod in collection.products %}
+{% assign variant = prod.selected_or_first_available_variant %}
+  "{{ prod.id }}":
+  { 
+    "price": "{% if variant.price %}{{ variant.price | money }}{% endif %}", 
+    "list_price": "{{ variant.compare_at_price | money }}"
+  }
+  {% if forloop.last != true %},{% endif %}
+{% endfor %}
+}
+,"count": {{ collection.products.size }},
+ "total": {{ collection.all_products_count }}
+}
+{% endpaginate %}

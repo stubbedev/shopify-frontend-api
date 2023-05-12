@@ -1,0 +1,33 @@
+<div class="p-lg boost-pfs-filter-wrapper">
+    <div data-name="container2" id="wdgFNg8l" class="clerk-design-component-wdgFNg8l">
+        <div data-group="group1" data-container="true">
+            <div data-name="slider1" class="clerk-design-component-JXrbODx9-recs">
+                <div data-group="group1" data-container="true" class="clerk-slider">
+                    {% for item in products %}
+                    {% if loop.index < 20 %}
+                    <div class="clerk_product_tile_p" data-clerk-ident="{{ item.id }}">
+                        <div data-name="container1" class="designs-card">
+                            <div data-group="group1" data-container="true">
+                                <a class="clerk_link" href="/da{{ item.url }}">
+                                    <div class="clerk_image_wrapper">
+                                        <img class="clerk_product_image" loading="lazy" src="{{ item.images }}" />
+                                        {% if item.images | nth 1 %}
+                                        <img class="clerk_product_hover_image" loading="lazy"
+                                            src="{{ item.images | nth 1 }}" />
+                                        {% else %}
+                                        <img class="clerk_product_hover_image" loading="lazy" src="{{ item.images }}" />
+                                        {% endif %}
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <span data-price-ident="{{ item.id }}"></span>
+                    <span data-list-price-ident="{{ item.id }}"></span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
