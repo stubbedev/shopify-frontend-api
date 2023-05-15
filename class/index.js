@@ -18,9 +18,12 @@ class clerk_shopify_api {
 
     static validate_data = (storage_location) => {
         if(storage_location == 'cookie'){
+            if(window.localStorage['clerk_api_data']) {
+                const local_data = JSON.parse(window.localStorage['clerk_api_data'])
+            }
             if(
-                window.localStorage['clerk_api_data'] &&
-                Object.keys(JSON.parse(window.localStorage['clerk_api_data']).length > 0) &&
+                local_data &&
+                Object.keys(local_data).length > 0 &&
                 window.localStorage['clerk_api_timestamp'] &&
                 parseInt(window.localStorage['clerk_api_timestamp']) + this.refresh_interval < this.get_time_now()
             ){
@@ -39,7 +42,7 @@ class clerk_shopify_api {
         const custom_event = new Event('clerk_shopify_api')
         window.dispatchEvent(custom_event)
     }
-    static get_time_now = () => { return Date.now() };
+    static get_time_now = () => { return Date.now() }
     static get_api_route = () => {
         return `${window.location.origin}${Shopify.routes.root}collections/clerk-api?view=json`
     }

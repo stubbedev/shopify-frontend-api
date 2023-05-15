@@ -1,6 +1,6 @@
 (function (w,d) {
   let h = document.querySelector(`#{{ content.id }}`);
-  if (Object.keys(window.clerk_api_data).length > 0) {
+  if (window.clerk_api_data && Object.keys(window.clerk_api_data).length > 0) {
     let els = h.querySelectorAll('.clerk_product_tile_p');
     els.forEach(function (el, i) {
       let key = el.dataset.clerkIdent;
