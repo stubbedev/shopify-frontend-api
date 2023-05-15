@@ -60,7 +60,7 @@ class clerk_shopify_api {
     static get_data = async () => {
         if(
             this.get_storage_method() == 'cookie' &&
-            this.validate_data() == 'stored'
+            this.validate_data(this.get_storage_method()) == 'stored'
         ) {
             window.clerk_api_data = JSON.parse(window.localStorage['clerk_api_data'])
             this.send_event()
