@@ -1,41 +1,41 @@
 class clerk_shopify_api {
-    constructor(
-        refresh_interval=43200
-    ){
-        this.refresh_interval = 43200
+
+    static init = () => {
         if(!window.clerk_api_data){
             window.clerk_api_data = {}
         }
+        this.get_data()
+        // Add event listener for ASYNC hydration
+        window.addEventListener('clerk_shopify_api', (e) => {
+            console.log('Clerk API frontend data built')
+        })
     }
 
-    static get_storage_method = () => {
+    static store_locally = () => {
         if(window.navigator.cookieEnabled){
-            return 'cookie'
+            return true
         } else {
-            return 'window'
+            return false
         }
     }
 
-    static validate_data = (storage_location) => {
-        if(storage_location == 'cookie'){
-            if(window.localStorage['clerk_api_data']) {
-                const local_data = JSON.parse(window.localStorage['clerk_api_data'])
+    static validate_data = () => {
+        if(this.store_locally()){
+            const local_data = window.localStorage['clerk_api_data'] ? JSON.parse(window.localStorage['clerk_api_data']) : false
+            const local_time = window.localStorage['clerk_api_timestamp'] ? (parseInt(window.localStorage['clerk_api_timestamp']) + 43200) : false
+            const local_curr = window.localStorage['clerk_api_currency'] ? window.localStorage['clerk_api_currency'] : false
+            if(local_curr && local_curr != '{{ cart.currency.iso_code }}') {
+                return false
             }
-            if(
-                local_data &&
-                Object.keys(local_data).length > 0 &&
-                window.localStorage['clerk_api_timestamp'] &&
-                parseInt(window.localStorage['clerk_api_timestamp']) + this.refresh_interval < this.get_time_now()
-            ){
-                return 'stored'
+            if((local_data && local_time) && (local_time < this.get_time_now())){
+                return true
             }
-        }
-        if(storage_location == 'window'){
+        } else {
             if(Object.keys(window.clerk_api_data).length > 0) {
-                return 'stored'
+                return true
             }
         }
-        return 'not stored'
+        return false
     }
 
     static send_event = () => {
@@ -62,8 +62,8 @@ class clerk_shopify_api {
 
     static get_data = async () => {
         if(
-            this.get_storage_method() == 'cookie' &&
-            this.validate_data(this.get_storage_method()) == 'stored'
+            this.store_locally() &&
+            this.validate_data()
         ) {
             window.clerk_api_data = JSON.parse(window.localStorage['clerk_api_data'])
             this.send_event()
@@ -89,9 +89,12 @@ class clerk_shopify_api {
                 }
             }
             if(!continue_sync){
-                if(this.get_storage_method() == 'cookie') {
+                if(this.store_locally()) {
                     window.localStorage['clerk_api_data'] = JSON.stringify(window.clerk_api_data)
                     window.localStorage['clerk_api_timestamp'] = this.get_time_now()
+                    if(Shopify){
+                        window.localStorage['clerk_api_currency'] = '{{ cart.currency.iso_code }}'
+                    }
                 }
                 this.send_event()
             }
@@ -100,12 +103,5 @@ class clerk_shopify_api {
 
     static set_data = (data) => {
         window.clerk_api_data = Object.assign({}, window.clerk_api_data, data)
-    }
-
-    static init = () => {
-        this.get_data()
-        window.addEventListener('clerk_shopify_api', (e) => {
-            console.log('Clerk API frontend data built')
-        })
     }
 }
